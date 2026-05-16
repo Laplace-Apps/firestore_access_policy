@@ -9,133 +9,103 @@ Define **who can read, create, update, and delete** Firestore and Storage resour
 
 ```yaml
 dependencies:
-  firestore_access_policy: ^0.2.0
+  firestore_access_policy: ^0.3.0
 ```
 
-## Generate Firestore rules
+## Generate rules (in memory)
 
 ```dart
-import 'package:firestore_access_policy/firestore_access_policy.dart';
-
-void main() {
-  final rules = const FirestoreRulesGenerator().generate(
-    FirestoreRulesFile(
-      helpers: [
-        const HelperFunction(
-          name: 'isAuthenticated',
-          body: 'return request.auth != null;',
-        ),
-      ],
-      policies: [
-        AccessPolicy(
-          path: ResourcePath.parse('lists/{listId}'),
-          rules: {
-            PolicyAction.read: [
-              PolicyRule(
-                And([
-                  Authenticated(),
-                  InMapKeys('members'),
-                ]),
-              ),
-            ],
-            PolicyAction.delete: [
-              PolicyRule(AuthUidEqualsField('createdBy')),
-            ],
-          },
-        ),
-      ],
-    ),
-  );
-
-  // Write `rules` to firestore.rules (build script, CI, or manual)
-}
+final text = const FirestoreRulesGenerator().generate(firestoreRulesFile);
 ```
 
-## Generate Storage rules
+## Write to a custom file (won't overwrite by default)
+
+Use a **different path** than your hand-maintained `firestore.rules`. Default behaviour is **fail if the file exists**:
 
 ```dart
-final storageRules = const StorageRulesGenerator().generate(
-  StorageRulesFile(
-    policies: [
-      StorageAccessPolicy(
-        path: StorageResourcePath.parse('users/{userId}/{allPaths=**}'),
-        rules: {
-          StoragePolicyAction.read: [
-            StoragePolicyRule(PathParamEquals('userId', 'request.auth.uid')),
-          ],
-          StoragePolicyAction.write: [
-            StoragePolicyRule(PathParamEquals('userId', 'request.auth.uid')),
-          ],
-        },
-      ),
-    ],
+const generation = RulesGeneration();
+
+await generation.writeFirestore(
+  myRulesFile,
+  const RulesOutputTarget(
+    path: 'firestore.generated.rules', // not firestore.rules
   ),
+);
+
+await generation.writeStorage(
+  myStorageRulesFile,
+  const RulesOutputTarget(path: 'storage.generated.rules'),
 );
 ```
 
-## Policy conditions
+| `RulesWriteIfExists` | Behaviour |
+|----------------------|-----------|
+| `fail` (default) | Throws if file exists — protects `firestore.rules` |
+| `skip` | Leaves existing file unchanged |
+| `overwrite` | Replaces file |
 
-| Type | Emits (example) |
-|------|------------------|
-| `Authenticated()` | `request.auth != null` |
-| `AuthUidEqualsField('createdBy')` | `request.auth.uid == resource.data.createdBy` |
-| `InMapKeys('members')` | `request.auth.uid in resource.data.members.keys()` |
-| `FieldUnchanged('createdBy')` | immutable field check |
-| `And` / `Or` | combined expressions |
-| `CallHelper('fn', ['arg'])` | `fn(arg)` |
-| `PathParamEquals('userId', 'request.auth.uid')` | Storage path params |
-| `RulesExpression('...')` | raw Rules fragment |
+## Patterns (member diff, parent group)
 
-Complex logic (member diffs, cross-collection `get()`, quotas) can use `RulesExpression` or `HelperFunction` until higher-level patterns ship.
+```dart
+FirestoreRulesFile(
+  helpers: [
+    ...MemberDiffPatterns.standardListMemberHelpers(),
+    ParentResourcePatterns.groupMemberByIdHelper(),
+  ],
+  policies: [
+    AccessPolicy(
+      path: ResourcePath.parse('lists/{listId}'),
+      rules: {
+        PolicyAction.update: [
+          PolicyRule(
+            And([
+              InMapKeys('members'),
+              MemberDiffPatterns.allowedMemberMapUpdate(),
+            ]),
+          ),
+        ],
+      },
+    ),
+  ],
+);
+```
+
+## CLI
+
+Pipe generated text to a safe output path:
+
+```bash
+dart run tool/my_policies.dart | dart run firestore_access_policy:generate_rules \
+  --firestore-out=firestore.generated.rules --stdin
+```
+
+See `dart run firestore_access_policy:generate_rules --help`.
+
+## Rules test skeleton
+
+```dart
+const RulesTestGenerator().generate(
+  packageName: 'my_app',
+  policies: catalog,
+);
+```
+
+Produces a `test/` file with cases to wire to [Firebase Rules unit tests](https://firebase.google.com/docs/rules/unit-tests).
 
 ## Roadmap
 
 | Step | Status |
 |------|--------|
-| Policy model + conditions | **Done (0.2)** |
-| Firestore + Storage emitters | **Done (0.2)** |
-| Member-diff / parent-resource patterns | Planned |
-| Rules unit-test generator + CLI | Planned |
+| Policy model + conditions | Done |
+| Firestore + Storage emitters | Done |
+| Safe custom output paths | Done (0.3) |
+| Member-diff / parent-resource patterns | Done (0.3) |
+| Rules test generator + CLI | Done (0.3) |
+| Full NoteTogether parity / emulator harness | Future |
 
-## Example
+## Automated publishing
 
-See [`example/generate_rules_example.dart`](example/generate_rules_example.dart).
-
-## Development
-
-```bash
-dart pub get
-dart test
-dart analyze
-dart pub publish --dry-run
-```
-
-## Automated publishing (GitHub Actions → pub.dev)
-
-Uses [pub.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) with OIDC (no copied pub tokens).
-
-### One-time setup on pub.dev
-
-1. Open [firestore_access_policy admin](https://pub.dev/packages/firestore_access_policy/admin) (uploader or `laplaceapps.com` publisher admin).
-2. **Automated publishing** → **Enable publishing from GitHub Actions**.
-3. Set:
-   - **Repository:** `Laplace-Apps/firestore_access_policy`
-   - **Tag pattern:** `v{{version}}`
-
-### Publish a new version
-
-1. Bump `version:` in `pubspec.yaml` (e.g. `0.2.1`).
-2. Commit and push to `main`.
-3. Tag and push (version must match the tag):
-
-```bash
-git tag v0.2.1
-git push origin v0.2.1
-```
-
-4. Check [GitHub Actions](https://github.com/Laplace-Apps/firestore_access_policy/actions) and the package [audit log](https://pub.dev/packages/firestore_access_policy/score/log) on pub.dev.
-
-Workflow file: [`.github/workflows/publish.yml`](.github/workflows/publish.yml) (reusable workflow from `dart-lang/setup-dart`).
+Tag `v0.3.0` on `main` after bumping `pubspec.yaml` — see [dart.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) (`v{{version}}` on pub.dev).
 
 ## License
 

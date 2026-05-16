@@ -2,7 +2,7 @@ name: firestore_access_policy
 description: >
   Declarative Firestore access policies in Dart — generate security rules,
   tests, and optional client guards from a single CRUD + membership model.
-version: 0.2.0
+version: 0.3.0
 homepage: https://github.com/Laplace-Apps/firestore_access_policy
 repository: https://github.com/Laplace-Apps/firestore_access_policy
 issue_tracker: https://github.com/Laplace-Apps/firestore_access_policy/issues
@@ -11,7 +11,11 @@ environment:
   sdk: ^3.10.0
 
 dependencies:
+  args: ^2.7.0
   meta: ^1.16.0
+
+executables:
+  generate_rules:
 
 dev_dependencies:
   lints: ^5.1.1
