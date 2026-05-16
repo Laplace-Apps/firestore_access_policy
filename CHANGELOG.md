@@ -1,3 +1,10 @@
+## 0.3.1
+
+- De-brand docs; clarify that [FirestoreRulesFile.headerComment] is consumer-controlled.
+- [RulesFileDefaults] for neutral generated-rules headers.
+- Rename example to `firestore_access_policy_example.dart` (pub.dev recognized).
+- Dartdoc on public API; pub score fixes.
+
 ## 0.3.0
 
 - [RulesOutputTarget] + [RulesFileWriter]: write to custom paths; default [RulesWriteIfExists.fail] avoids overwriting `firestore.rules`.

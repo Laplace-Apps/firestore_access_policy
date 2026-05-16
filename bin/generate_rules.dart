@@ -55,7 +55,7 @@ Examples:
   dart run generate_rules --firestore-out=firestore.generated.rules --if-exists=overwrite --stdin
 
 Recommended: define policies in Dart and call RulesGeneration from tool/generate_rules.dart.
-See example/generate_rules_example.dart
+See example/firestore_access_policy_example.dart
 ''');
     return;
   }

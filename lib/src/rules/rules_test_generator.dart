@@ -3,6 +3,7 @@ import '../policy_action.dart';
 
 /// A single rules test case (for documentation / future emulator harness).
 final class RulesTestCase {
+  /// Describes one scenario for a generated rules test skeleton.
   const RulesTestCase({
     required this.description,
     required this.path,
@@ -11,17 +12,28 @@ final class RulesTestCase {
     this.authUid = 'testUser',
   });
 
+  /// Human-readable test name.
   final String description;
+
+  /// Document path under test (e.g. `lists/abc`).
   final String path;
+
+  /// CRUD action being exercised.
   final PolicyAction action;
+
+  /// Whether the operation should be allowed.
   final bool expectAllowed;
+
+  /// Authenticated user id for the scenario.
   final String authUid;
 }
 
 /// Generates a Dart test file skeleton for manual or emulator-based verification.
 final class RulesTestGenerator {
+  /// Creates a rules test skeleton generator.
   const RulesTestGenerator();
 
+  /// Returns Dart test source with TODO stubs for emulator wiring.
   String generate({
     required String packageName,
     required List<AccessPolicy> policies,

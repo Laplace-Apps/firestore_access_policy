@@ -9,7 +9,7 @@ Define **who can read, create, update, and delete** Firestore and Storage resour
 
 ```yaml
 dependencies:
-  firestore_access_policy: ^0.3.0
+  firestore_access_policy: ^0.3.1
 ```
 
 ## Generate rules (in memory)
@@ -17,6 +17,12 @@ dependencies:
 ```dart
 final text = const FirestoreRulesGenerator().generate(firestoreRulesFile);
 ```
+
+## Optional header comments in generated rules
+
+Banner comments at the top of emitted `firestore.rules` / `storage.rules` are **optional** and **fully controlled by your app**. Set [`FirestoreRulesFile.headerComment`](lib/src/rules/rules_file.dart) (or [`StorageRulesFile.headerComment`](lib/src/storage/storage_rules_file.dart)) when you build the file; omit it for no header.
+
+Use this for project-specific notes (deploy path, diff commands, etc.). The library does not inject app names or deploy instructions by default. For a neutral template, see [`example/firestore_access_policy_example.dart`](example/firestore_access_policy_example.dart) or [`RulesFileDefaults.firestoreHeaderComment`](lib/src/rules/rules_file_defaults.dart).
 
 ## Write to a custom file (won't overwrite by default)
 
@@ -101,11 +107,11 @@ Produces a `test/` file with cases to wire to [Firebase Rules unit tests](https:
 | Safe custom output paths | Done (0.3) |
 | Member-diff / parent-resource patterns | Done (0.3) |
 | Rules test generator + CLI | Done (0.3) |
-| Full NoteTogether parity / emulator harness | Future |
+| Advanced patterns + Rules emulator harness | Future |
 
 ## Automated publishing
 
-Tag `v0.3.0` on `main` after bumping `pubspec.yaml` — see [dart.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) (`v{{version}}` on pub.dev).
+Tag `v0.3.1` on `main` after bumping `pubspec.yaml` — see [dart.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) (`v{{version}}` on pub.dev).
 
 ## License
 

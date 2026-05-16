@@ -3,11 +3,12 @@ import '../rules/helper_function.dart';
 
 /// Reusable Firestore helpers for `members` map invite / kick / self-leave diffs.
 ///
-/// Matches common collaborative-document patterns (see NoteTogether `firestore.rules`).
+/// Matches common collaborative-document `members` map diff patterns.
 abstract final class MemberDiffPatterns {
-  /// `resource.data.members.diff(request.resource.data.members)`.
+  /// Default helper name for the members map diff (`listMembersDiff`).
   static const membersDiffVariable = 'listMembersDiff';
 
+  /// Helper that returns `resource.data.<membersField>.diff(...)`.
   static HelperFunction listMembersDiffHelper({
     String functionName = membersDiffVariable,
     String membersField = 'members',
@@ -19,6 +20,7 @@ abstract final class MemberDiffPatterns {
 return resource.data.$membersField.diff(request.resource.data.$membersField);''',
       );
 
+  /// Helper ensuring [field] is unchanged on update.
   static HelperFunction listUpdateKeepsFieldHelper({
     String field = 'createdBy',
     String functionName = 'listUpdateKeepsField',
@@ -29,11 +31,13 @@ return resource.data.$membersField.diff(request.resource.data.$membersField);'''
 return request.resource.data.$field == resource.data.$field;''',
       );
 
+  /// Condition: [membersField] map is unchanged.
   static PolicyCondition membersUnchanged({String membersField = 'members'}) =>
       RulesExpression(
         'request.resource.data.$membersField == resource.data.$membersField',
       );
 
+  /// Condition: caller removes only themselves from [membersField].
   static PolicyCondition selfLeave({
     String diffFunction = membersDiffVariable,
     String membersField = 'members',
@@ -43,6 +47,7 @@ return request.resource.data.$field == resource.data.$field;''',
           && $diffFunction().removedKeys().size() == 1
           && request.auth.uid in $diffFunction().removedKeys()''');
 
+  /// Condition: owner removes exactly one member (not themselves).
   static PolicyCondition ownerRemovedOneMember({
     String ownerField = 'createdBy',
     String diffFunction = membersDiffVariable,
@@ -53,6 +58,7 @@ return request.resource.data.$field == resource.data.$field;''',
           && $diffFunction().removedKeys().size() == 1
           && !(resource.data.$ownerField in $diffFunction().removedKeys())''');
 
+  /// Condition: member adds one or more keys without removals.
   static PolicyCondition memberInvite({
     String diffFunction = membersDiffVariable,
     String membersField = 'members',

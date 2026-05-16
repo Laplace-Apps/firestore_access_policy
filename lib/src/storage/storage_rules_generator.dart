@@ -4,8 +4,10 @@ import 'storage_rules_file.dart';
 
 /// Generates Firebase Storage `storage.rules` text from [StorageRulesFile].
 final class StorageRulesGenerator {
+  /// Creates a Storage rules generator.
   const StorageRulesGenerator();
 
+  /// Returns complete `storage.rules` source for [file].
   String generate(StorageRulesFile file) {
     final buffer = StringBuffer()
       ..writeln('rules_version = \'2\';')

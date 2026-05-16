@@ -8,14 +8,20 @@ import 'rules_write_result.dart';
 
 /// Firestore + Storage generation and optional file output.
 final class RulesGeneration {
+  /// Orchestrates generation and optional disk output for Firestore and Storage.
   const RulesGeneration({
     this.firestoreGenerator = const FirestoreRulesGenerator(),
     this.storageGenerator = const StorageRulesGenerator(),
     this.writer = const RulesFileWriter(),
   });
 
+  /// Firestore rules text generator.
   final FirestoreRulesGenerator firestoreGenerator;
+
+  /// Storage rules text generator.
   final StorageRulesGenerator storageGenerator;
+
+  /// Shared writer for output files.
   final RulesFileWriter writer;
 
   /// Returns `firestore.rules` source text.

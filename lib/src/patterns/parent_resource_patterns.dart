@@ -3,6 +3,7 @@ import '../rules/helper_function.dart';
 
 /// Access via a parent document (e.g. list `groupId` → `groups/{id}` membership).
 abstract final class ParentResourcePatterns {
+  /// Helper that loads a group doc and checks membership by id.
   static HelperFunction groupMemberByIdHelper({
     String functionName = 'isGroupMemberById',
     String groupsCollection = 'groups',
@@ -19,6 +20,7 @@ return g != null && (
 );''',
       );
 
+  /// List access via direct members or parent [groupIdField] group membership.
   static PolicyCondition listMemberOrParentGroup({
     String membersField = 'members',
     String groupIdField = 'groupId',

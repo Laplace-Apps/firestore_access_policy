@@ -5,6 +5,8 @@ import 'rules/policy_rule.dart';
 /// Describes access rules for a single Firestore resource path.
 final class AccessPolicy {
   /// Creates a policy for [path] with structured [rules] for code generation.
+  ///
+  /// Legacy [permissions] are ignored by [FirestoreRulesGenerator].
   const AccessPolicy({
     required this.path,
     this.description,
@@ -26,9 +28,11 @@ final class AccessPolicy {
   @Deprecated('Use rules with PolicyRule and PolicyCondition.')
   final Map<PolicyAction, String> permissions;
 
+  /// Actions that have at least one rule or legacy permission entry.
   Iterable<PolicyAction> get configuredActions =>
       {...rules.keys, ...permissions.keys};
 
+  /// Whether [action] is configured on this policy.
   bool allows(PolicyAction action) =>
       rules.containsKey(action) || permissions.containsKey(action);
 

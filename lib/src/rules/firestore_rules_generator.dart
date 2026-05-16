@@ -4,8 +4,10 @@ import 'rules_file.dart';
 
 /// Generates `firestore.rules` text from [FirestoreRulesFile].
 final class FirestoreRulesGenerator {
+  /// Creates a Firestore rules generator.
   const FirestoreRulesGenerator();
 
+  /// Returns complete `firestore.rules` source for [file].
   String generate(FirestoreRulesFile file) {
     final buffer = StringBuffer()
       ..writeln('rules_version = \'2\';')

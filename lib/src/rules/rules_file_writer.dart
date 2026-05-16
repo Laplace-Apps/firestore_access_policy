@@ -7,6 +7,7 @@ import 'rules_write_result.dart';
 
 /// Writes generated rules text to disk with safe overwrite behaviour.
 final class RulesFileWriter {
+  /// Creates a rules file writer.
   const RulesFileWriter();
 
   /// Writes [content] to [target.path] according to [target.ifExists].

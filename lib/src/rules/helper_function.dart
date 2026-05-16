@@ -1,5 +1,6 @@
 /// Reusable `function name(...) { ... }` block in a rules file.
 final class HelperFunction {
+  /// Declares a top-level `function` in the rules file.
   const HelperFunction({
     required this.name,
     this.parameters = const [],
@@ -7,12 +8,19 @@ final class HelperFunction {
     this.comment,
   });
 
+  /// Function name used in Rules and [CallHelper].
   final String name;
+
+  /// Parameter names for the function signature.
   final List<String> parameters;
+
   /// Rules statements inside the function (without outer braces).
   final String body;
+
+  /// Optional comment emitted above the function.
   final String? comment;
 
+  /// Emits the function block with optional [indent].
   String emit({String indent = '    '}) {
     final buffer = StringBuffer();
     if (comment != null) {

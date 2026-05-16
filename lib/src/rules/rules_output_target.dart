@@ -2,6 +2,7 @@ import 'rules_write_if_exists.dart';
 
 /// Destination path and overwrite behaviour for generated rules text.
 final class RulesOutputTarget {
+  /// Output path and overwrite policy for [RulesFileWriter].
   const RulesOutputTarget({
     required this.path,
     this.ifExists = RulesWriteIfExists.fail,

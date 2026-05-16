@@ -11,6 +11,7 @@ export 'src/rules/firestore_rules_generator.dart';
 export 'src/rules/helper_function.dart';
 export 'src/rules/policy_rule.dart';
 export 'src/rules/rules_file.dart';
+export 'src/rules/rules_file_defaults.dart';
 export 'src/rules/rules_file_writer.dart';
 export 'src/rules/rules_generation.dart';
 export 'src/rules/rules_output_target.dart';
