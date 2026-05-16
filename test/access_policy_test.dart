@@ -15,12 +15,14 @@ void main() {
   });
 
   group('AccessPolicy', () {
-    test('tracks configured CRUD actions', () {
+    test('tracks configured CRUD actions from rules', () {
       final policy = AccessPolicy(
         path: ResourcePath.parse('lists/{listId}'),
-        permissions: {
-          PolicyAction.read: 'members',
-          PolicyAction.delete: 'createdBy',
+        rules: {
+          PolicyAction.read: [PolicyRule(const Authenticated())],
+          PolicyAction.delete: [
+            PolicyRule(AuthUidEqualsField('createdBy')),
+          ],
         },
       );
 

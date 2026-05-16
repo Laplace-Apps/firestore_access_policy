@@ -1,15 +1,15 @@
 import 'policy_action.dart';
 import 'resource_path.dart';
+import 'rules/policy_rule.dart';
 
 /// Describes access rules for a single Firestore resource path.
-///
-/// In step 1, [permissions] holds human-oriented descriptions. Later steps
-/// attach structured [PolicyCondition]s and emit `firestore.rules` text.
 final class AccessPolicy {
-  /// Creates a policy for [path].
+  /// Creates a policy for [path] with structured [rules] for code generation.
   const AccessPolicy({
     required this.path,
     this.description,
+    this.rules = const {},
+    @Deprecated('Use rules with PolicyRule and PolicyCondition. Removed in v0.3.')
     this.permissions = const {},
   });
 
@@ -19,15 +19,18 @@ final class AccessPolicy {
   /// Optional documentation shown in generated rules comments.
   final String? description;
 
-  /// Intended access per action. Values are descriptions until conditions
-  /// are wired in step 2+.
+  /// `allow` clauses per CRUD action. Multiple entries per action are allowed.
+  final ActionRules rules;
+
+  /// Legacy human-readable descriptions (not emitted).
+  @Deprecated('Use rules with PolicyRule and PolicyCondition.')
   final Map<PolicyAction, String> permissions;
 
-  /// Actions explicitly configured on this policy.
-  Iterable<PolicyAction> get configuredActions => permissions.keys;
+  Iterable<PolicyAction> get configuredActions =>
+      {...rules.keys, ...permissions.keys};
 
-  /// Whether [action] has an entry in [permissions].
-  bool allows(PolicyAction action) => permissions.containsKey(action);
+  bool allows(PolicyAction action) =>
+      rules.containsKey(action) || permissions.containsKey(action);
 
   @override
   String toString() {
